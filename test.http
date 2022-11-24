@@ -1,0 +1,43 @@
+
+
+
+GET http://192.168.53.222:3008/feed
+###
+
+
+POST http://192.168.53.222:3008/post HTTP/1.1
+content-type: application/json
+
+ {
+   "title" :"new create",
+   "content" :"记录哈哈哈",
+   "email" :"dabai@gamail.com"
+ }
+
+###
+PUT http://192.168.53.222:3008/post/1/views HTTP/1.1
+content-type: application/json
+
+###
+GET http://192.168.53.222:3008/users
+
+###
+ 
+GET http://192.168.53.222:3008/post/5
+###
+
+ 
+GET http://192.168.53.222:3008/getPosts
+###
+
+POST http://192.168.53.222:3008/signup HTTP/1.1
+content-type: application/json
+
+{
+  "name" : "yayaya",
+  "email" : "11212156565@qq.com",
+  "posts" : [{
+    "title":"up title",
+    "content" : "day day up"
+  }]
+}
