@@ -39,6 +39,7 @@ model Hanzi {
   chinese   String
   pinyin    String
   bihua     String
+  bishun    String
   radical   String
   fayin     String?
 }

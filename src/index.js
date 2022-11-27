@@ -263,34 +263,7 @@ router.get('/feed', async (ctx) => {
 //   res.send(profile)
 // })
 
-// 请求百度汉字api 获取对应汉字的释义
 
-router.get('/ziyi1', async (ctx) => {
-  const { word } = ctx.query
-  let _data
-  url = "https://hanyu.baidu.com/s?wd=" + word + '&ptype=zici';
-  const __data = await https.get(url, (resp) => {
-    let data = '';
-    // A chunk of data has been received.
-    resp.on('data', (chunk) => {
-      data += chunk;
-    });
-
-    // The whole response has been received. Print out the result.
-    resp.on('end', () => {
-      // const  _r = JSON.parse(data)
-      // ctx.body = {data}
-      _data = data+''
-      console.log(1)
-      return _data
-    });
-  }).on("error", (err) => {
-    console.log("Error: " + err.message);
-  })
-  console.log(2)
-   
-  ctx.body = {data:_data}
-})
 const fetchBaidu = async (word) => {
  return  new Promise((resolve) => {
       url = "https://hanyu.baidu.com/s?wd=" + word + '&ptype=zici';
@@ -302,8 +275,27 @@ const fetchBaidu = async (word) => {
 }
 const formatData = (data) =>{
   const proString = data.split(`<div id="word-header" class="header-info">`)[1]
-  const lastString = proString.split(`<div class="content means imeans" data-group="imeans" id="basicmean-wrapper">`)[0]
-  return lastString
+  const lastString = proString.split('</ul>')[0]
+  // bishun
+  let temp = lastString.match(/<img id="word_bishun" class="bishun" data-gif="https:\/\/hanyu-word-gif\.cdn\.bcebos\.com\/(.*?)\.gif" src="/);
+  let bishun = temp ? temp[1] : '';
+  // pinyin
+  let str2= lastString.split(`<div class="pronounce" id="pinyin">`)[1]
+  let pinyin = str2.match(/<b>(.*?)<\/b>/)[1]
+  
+  // fayin
+  let fayin = str2.match(/<a herf="#" url="https:\/\/hanyu-word-pinyin-short.cdn.bcebos.com\/(.*?)\.mp3" class="mp3-play">/)[1];
+  let main3 = str2.split('<li id="radical">')[1];
+  let radical = main3.match(/<span>(.*?)<\/span>/)[1];
+  main3 = main3.split('<label>笔 画</label>')[1];
+  let bihua = main3.match(/<span>(.*?)<\/span>/)[1];
+  return {
+    bishun,
+    fayin,
+    radical,
+    pinyin,
+    bihua
+  }
 }
 router.get('/ziyi', async (ctx) => {
   const { word } = ctx.query
@@ -311,12 +303,20 @@ router.get('/ziyi', async (ctx) => {
   let _data = await fetchBaidu(word)
 
   _data = formatData(_data)
-   
-  ctx.body = {data:_data}
-  
+  // 将文字对应的 拼音 笔画 插入到汉字数据表中
+  const newPost = await prisma.hanzi.create({
+    data: {
+      ..._data,
+      chinese: word
+    }
+  })
+  ctx.body = _data
 })
 
-
+router.get('/getWords',async(ctx)=>{
+  const data = await prisma.hanzi.findMany()
+  ctx.body = data
+})
 
 app.use(router.routes()).use(router.allowedMethods())
 

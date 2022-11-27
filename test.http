@@ -41,3 +41,12 @@ content-type: application/json
     "content" : "day day up"
   }]
 }
+
+###
+
+GET http://127.0.0.1:3008/ziyi?word=%E5%AE%89
+
+###
+
+GET http://127.0.0.1:3008/getWords
+
