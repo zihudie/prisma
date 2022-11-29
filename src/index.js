@@ -38,231 +38,48 @@ prisma.$on('query', (e) => {
 })
 
 app.use(koaBody())
-
+/**
+ * 注册
+ */
 router.post('/signup', async (ctx) => {
-  const { name, email, posts } = ctx.request.body
-
-  const postData = posts
-    ? posts.map((post) => {
-      return { title: post.title, content: post.content || undefined }
-    })
-    : []
-
+  const { name, password } = ctx.request.body
   const newUser = await prisma.user.create({
     data: {
       name,
-      email,
-      posts: {
-        create: postData,
-      },
-    },
+      password
+    }
   })
-
-  ctx.status = 201 // Created
+  
   ctx.body = newUser
 })
 
-router.post('/post', async (ctx) => {
-  const { title, content, email } = ctx.request.body
-  const newPost = await prisma.post.create({
-    data: {
-      title,
-      content,
-      author: { connectOrCreate: { 
-        where : {
-          email
-        },
-        create:{
-          email,
-          name:"setphior"
-        }
-       }
-      }
-    },
-    
-  })
-  ctx.status = 201 // Created
-  ctx.body = newPost
-})
+/**
+ * 登录
+ */
 
-router.put('/post/:id/views', async (ctx) => {
-  const id = Number(ctx.params.id)
-
-  try {
-    const post = await prisma.post.update({
-      where: {
-        id,
-      },
-      data: {
-        viewCount: {
-          increment: 1,
-        },
-      },
-    })
-
-    ctx.body = post
-  } catch {
-    ctx.status = 404
-    ctx.body = { error: `Post with ID ${id} does not exist in the database` }
-  }
-})
-
-router.put('/publish/:id', async (ctx) => {
-  const id = Number(ctx.params.id)
-  const postToUpdate = await prisma.post.findUnique({
+ router.post('/login', async (ctx) => {
+  const { name, password } = ctx.request.body
+  const newUser = await prisma.user.findUnique({
     where: {
-      id
-    },
-  })
-
-  if (!postToUpdate) {
-    ctx.status = 404
-    ctx.body = { error: `Post with ID ${id} does not exist in the database` }
-    return
-  }
-
-  const updatedPost = await prisma.post.update({
-    where: {
-      id,
-    },
-    data: {
-      published: !postToUpdate.published,
-    },
-  })
-
-  ctx.body = updatedPost
-})
-
-router.delete('/post/:id', async (ctx) => {
-  const id = Number(ctx.params.id)
-  try {
-    const deletedPost = await prisma.post.delete({
-      where: {
-        id,
-      },
-    })
-
-    ctx.body = deletedPost
-  } catch {
-    ctx.status = 404
-    ctx.body = { error: `Post with ID ${id} does not exist in the database` }
-  }
-})
-
-router.get('/users', async (ctx) => {
-  const users = await prisma.user.findMany()
-
-  ctx.body = users
-})
-
-router.get('/user/:id/drafts', async (ctx) => {
-  const id = Number(ctx.params.id)
-
-  const drafts = await prisma.user
-    .findUnique({
-      where: {
-        id,
-      },
-    })
-    .posts({
-      where: { published: false },
-    })
-
-  ctx.body = drafts
-})
-
-router.get('/post/:id', async (ctx) => {
-  const id = Number(ctx.params.id)
-  const post = await prisma.post.findUnique({
-    where: {
-      id
-    },
-  })
-
-  ctx.body = post
-})
-
-router.get('/getViews', async (ctx) => {
-  const post = await prisma.user.findMany({
-    where: {
-      posts:{
-        some:{
-          viewCount:{
-            gt:1
-          }
-        }
-      }
-    },
-    // include: {
-    //   posts: true
-    // }
-  })
-
-   ctx.status = 404
-   ctx.body = { error: `Post with ID does not exist in the database` }
-  // ctx.body = post
-})
-
-
- // viewCount: viewCount >1
-router.get('/getPosts', async (ctx) => {
-  const post = await prisma.user.findUnique({
-    where: {
-      id:3
-    },
-    // include: {
-    //   posts: true
-    // }
-  })
-  ctx.body = post
-})
-
-router.get('/feed', async (ctx) => {
-  const { searchString, skip, take, orderBy } = ctx.query
-
-  const or = searchString
-    ? {
-      OR: [
-        { title: { contains: searchString } },
-        { content: { contains: searchString } },
-      ],
+      name
     }
-    : {}
-
-  const posts = await prisma.post.findMany({
-    where: {
-      published: true,
-      ...or,
-    },
-    include: { author: true },
-    take: Number(take) || undefined,
-    skip: Number(skip) || undefined,
-    orderBy: {
-      updatedAt: orderBy || undefined,
-    },
   })
-  ctx.body = posts
+  // 判断查找到的用户名和密码是否一致，如果一致则登录成功，并将数据返回
+  if(newUser.password === password){
+    ctx.body = {
+      data: newUser
+    }
+  }else{
+    ctx.body = null
+  }
+  
 })
 
-// app.post('/user/:id/profile', async (req, res) => {
-//   console.log("res...",res)
-//   const { id } = req.params
-//   const { bio } = req.body
-
-//   const profile = await prisma.profile.create({
-//     data: {
-//       bio,
-//       user: {
-//         connect: {
-//           id: Number(id)
-//         }
-//       }
-//     }
-//   })
-
-//   res.send(profile)
-// })
-
+/**
+ * 
+ * @param {*} word 对应汉字的拼音，部首，笔画，
+ * @returns 
+ */
 
 const fetchBaidu = async (word) => {
  return  new Promise((resolve) => {
