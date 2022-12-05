@@ -11,9 +11,9 @@
         <span class="yuan">原价:10999元</span>
         <span class="buy-price">抢购价:<span class="amount">19.9</span>元</span>
     </div>
-    <img src="../assets/group/rule2.png" class="rule" alt="">
+    <img src="../assets/group/rule2.png"  @click="jumpRule" class="rule" alt="">
     <p>
-     <img src="../assets/group/exchange.png" class="exchange" alt="">
+      <img src="../assets/group/exchange.png"  @click="exchange" class="exchange" alt="">
     </p>
   </div>
 </template>
@@ -21,6 +21,7 @@
 <script>
 import { ref } from 'vue'
 import { reportInfo} from "@/utils/jsBridge";
+import { useExchange } from "./useExchange"
 
 export default {
   props: {
@@ -30,20 +31,22 @@ export default {
     }
   },
   setup(props,{ emit }) {
-    const data = ref(props.data)
-   
+    const data = props.data
     // 有埋点数据的话 需要进行曝光埋点
-   
-      // reportInfo(pointData.value)
-     
-    const panelCancel = () => {
-      emit('close')
-    }
+    // reportInfo(pointData.value)
+    const data = props.data
+    const {exchange,goRule,curData} = useExchange(data,Number(dialogType))
     const panelConfirm = () => {
       emit('confirm')
     }
+    const jumpRule = ()=>{
+      emit('close');
+      goRule()
+    }
     return { 
-      data,
+      curData,
+      jumpRule,
+      exchange,
       panelCancel,
       panelConfirm,
     }

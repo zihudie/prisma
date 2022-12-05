@@ -260,7 +260,6 @@ export default {
     })
 
     if(route.query.bussType && route.query.bussType === '2'){
-      //  todo  获取商品组详情方法
        getDataFun = getGroupProDetails
     }
 

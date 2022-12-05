@@ -23,10 +23,10 @@
       />
     </div>
     <p>
-     <img src="../assets/group/rule.png" class="rule" alt="">
+     <img src="../assets/group/rule.png" @click="jumpRule" class="rule" alt="">
     </p>
     <p>
-     <img src="../assets/group/exchange.png" class="exchange" alt="">
+     <img src="../assets/group/exchange.png" @click="exchange" class="exchange" alt="">
     </p>
   </div>
 </template>
@@ -35,6 +35,7 @@
 import { ref, reactive, toRefs } from 'vue'
 import ProItem from './ProItem.vue';
 import { reportInfo} from "@/utils/jsBridge";
+import { useExchange } from "./useExchange"
 
 export default {
   components:{
@@ -52,20 +53,22 @@ export default {
         commodityCoverUrl:'http://test-static.wisdomwz.com/weather/cms/2022-10-17/1666013435107dnG3nh.jpg'
       }
     })
-    const data = ref(props.data)
+    const data = props.data
+    const {exchange,goRule,curData} = useExchange(data,Number(dialogType))
    
     // 有埋点数据的话 需要进行曝光埋点
    
     // reportInfo(pointData.value)
-     
-    const panelCancel = () => {
-      emit('close')
-    }
     const panelConfirm = () => {
       emit('confirm')
     }
+    const jumpRule = ()=>{
+      emit('close');
+      goRule()
+    }
     return { 
-      data,
+      curData,
+      exchange,
       panelCancel,
       panelConfirm,
       ...toRefs(state)

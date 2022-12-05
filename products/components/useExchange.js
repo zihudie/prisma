@@ -1,5 +1,6 @@
 
 import { ref } from 'vue'
+import { nativeRoute } from "@/utils/jsBridge";
 export  function useExchange(list,gapNum) {
   let curData = ref([])
   let index = 0;
@@ -12,5 +13,18 @@ export  function useExchange(list,gapNum) {
       index = 0
     }
   }
-  return {exchange,curData}
+  const goRule = () => {
+    nativeRoute({
+      url: "/showComment?goodsId=",
+      path: "/luckdraw/AppraiseCenterActivity",
+    });
+  }
+
+  const itemDetails = () => {
+    nativeRoute({
+      url: "/showComment?goodsId=",
+      path: "/luckdraw/AppraiseCenterActivity",
+    });
+  }
+   return {exchange,goRule,curData}
 }
