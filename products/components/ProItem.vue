@@ -86,7 +86,7 @@ export default {
     proList.value.remain = remain
     const productPurchase = ()=>{
       emit("callBack",proList.value.commodityName)
-      nativeRoute({url:`/proDetails?id=${proList.value.id}`,path:'/luckdraw/ProductDetailActivity'})
+      nativeRoute({url:`/proDetails?bussType=2&id=${proList.value.id}`,path:'/luckdraw/ProductDetailActivity'})
     }
     AnimateJSON.value  = animateJSON
     return {

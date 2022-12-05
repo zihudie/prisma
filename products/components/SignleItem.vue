@@ -28,14 +28,18 @@ export default {
     data: {
       type: Object,
       default: () => {},
+    },
+    dialogSource:{
+      type: String,
+      default: "1",
     }
   },
   setup(props,{ emit }) {
     const data = props.data
+    let dialogSource =props.dialogSource
     // 有埋点数据的话 需要进行曝光埋点
     // reportInfo(pointData.value)
-    const data = props.data
-    const {exchange,goRule,curData} = useExchange(data,Number(dialogType))
+    const {exchange,goRule,curData} = useExchange(data,Number(dialogSource))
     const panelConfirm = () => {
       emit('confirm')
     }

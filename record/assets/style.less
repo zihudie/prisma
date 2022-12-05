@@ -1,0 +1,56 @@
+@arr: '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6',
+  '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8', '0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9';
+@indexs: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9;
+@numHeight: 30px;
+@numWidth: 30px;
+@numFontSize:@numWidth / 1;
+@-webkit-keyframes counter {
+  100% {
+    -webkit-transform: translateY(calc(-100% + @numHeight));
+    transform: translateY(calc(-100% + @numHeight));
+  }
+}
+
+@keyframes counter {
+  100% {
+    -webkit-transform: translateY(calc(-100% + @numHeight));
+    transform: translateY(calc(-100% + @numHeight));
+  }
+}
+
+.counterWrapper {
+  display: flex;
+}
+
+.counterItem {
+  position: relative;
+  width: @numWidth;
+  height: @numHeight;
+  background: #aaa;
+  overflow: hidden;
+  text-align: center;
+}
+
+.counterDetail {
+  width: @numWidth;
+  overflow: visible;
+}
+
+each(@indexs, {
+    .counter@{value} {
+        position: absolute;
+        overflow: hidden;
+        &::after {
+            content: extract(@arr,@index);
+            word-wrap: break-word;
+            word-break: break-all;
+            z-index: 1;
+        }
+    }
+    .index@{value}{
+        animation: counter (@index)*1s ease-out;
+        -webkit-animation: counter (@index)*1s ease-out;
+        animation-fill-mode: forwards;
+        -webkit-animation-fill-mode: forwards;
+    }
+});

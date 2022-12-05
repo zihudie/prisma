@@ -24,7 +24,7 @@ export const getProDetails = (params) =>{
 
 export const getGroupProDetails = (params) =>{
   return request({
-    url: "/weatapi/luck-draw/goods/detail",
+    url: "/weatapi/luck-draw/v1/commodity-group/detail",
     method: "get",
     params
   });

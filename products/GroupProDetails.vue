@@ -173,7 +173,7 @@
     <van-popup v-model:show="showMorePros" style="background: transparent">
       <RecomentProduct
         :data="prizeConfig"
-        :dialog-type = "route.query.dialogSource"
+        :dialog-type = "dialogSource"
         @close="showMorePros = false"
       />
     </van-popup>
@@ -199,7 +199,7 @@ import 'vue3-lottie/dist/style.css'
 import { useRoute } from "vue-router";
 import { toRefs, reactive,ref } from "vue";
 import { Popup, Overlay } from "vant";
-import { areaList, getProDetails, generateOrder, payResult, bulletChat} from "./api";
+import { areaList, getProDetails,getGroupProDetails, generateOrder, payResult, bulletChat} from "./api";
 import { checkToken } from "@/api/common";
 import { parseTime } from "@/utils";
 import { nativeBridge, nativeRoute ,reportInfo} from "@/utils/jsBridge";
@@ -229,9 +229,10 @@ export default {
    setup() {
     const danmakuRef = ref(null)
     const state = reactive({
+      dialogSource: "1",
       isPayRetetion: false,
       paySus: false,
-      showMorePros: true,
+      showMorePros: false,
       panelShow: false,
       isGetPrize: false,
       isFailLogin: false,
@@ -252,6 +253,8 @@ export default {
     
     let getDataFun = getProDetails
     const route = useRoute();
+    // 弹框类型
+    state.dialogSource = route.query.dialogSource || "1"
     // 获取请求客户端的header信息
     let headers = {};
     nativeBridge.exec("0001").then(res=>{
@@ -498,7 +501,7 @@ export default {
         commodityPriceId: id,
         userId: headers["customer-id"],
         purchaseAmount: 1,
-        orderType:route.query.bussType === '2' ? "commodity_group" : "commodity"
+        bussType: route.query.bussType === '2' ? "commodity_group" : "commodity"
       };
       generateOrder(sendMessage).then((res) => {
         // 如果是看视频下单， 则请求完成之后继续请求 获取中奖码的接口； 如果是购买 则拉起支付

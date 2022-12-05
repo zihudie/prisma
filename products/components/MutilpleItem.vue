@@ -1,7 +1,7 @@
 <template>
   <!-- 2-3个产品样式 -->
   <div>
-    <div :class='["inner-model", `pro-model${dialogType}`]'>
+    <div :class='["inner-model", `pro-model${dialogSource}`]'>
     <ul>
       <li class="pro-list">
         <img class="pro-img" src="http://test-static.wisdomwz.com/weather/cms/2022-10-17/1666013435107dnG3nh.jpg" alt="">
@@ -41,14 +41,15 @@ export default {
       type: Object,
       default: () => {},
     },
-    dialogType:{
+    dialogSource:{
       type: String,
       default: "1",
     }
   },
   setup(props,{ emit }) {
     const data = props.data
-    const {exchange,goRule,curData} = useExchange(data,Number(dialogType))
+    let dialogSource =props.dialogSource
+    const {exchange,goRule,curData} = useExchange(data,Number(dialogSource))
     // 有埋点数据的话 需要进行曝光埋点
     // reportInfo(pointData.value)
     const panelConfirm = () => {

@@ -2,15 +2,15 @@
   <div class="more-recomment-model more-recomment-model3">
     <img class="close" src='@/assets/images/dClose.png'  @click="panelCancel"  alt="" />
     <!-- 2-3个产品样式 -->
-    <MutilpleItem  v-if="dialogType ==='2' || dialogType ==='3'"
+    <MutilpleItem  v-if="dialogSource ==='2' || dialogSource ==='3'"
       @close='panelCancel'
-      :dialog-type="dialogType"
+      :dialog-type="dialogSource"
       :data="data" 
     />
     <!-- 单个样式 -->
-    <SignleItem v-if="dialogType ==='4'" @close='panelCancel' :data="data" /> 
+    <SignleItem v-if="dialogSource ==='4'" @close='panelCancel' :data="data" /> 
     <!-- 4个产品样式 -->
-    <FourItem v-if="dialogType ==='1'" @close='panelCancel' :data="data"  />
+    <FourItem v-if="dialogSource ==='1'" @close='panelCancel' :data="data"  />
   </div>
 </template>
 
@@ -31,18 +31,16 @@ export default {
       type: Object,
       default: () => {},
     },
-    dialogType:{
+    dialogSource:{
       type: String,
       default: "1",
     }
   },
   setup(props,{ emit }) {
     const data = props.data
-    let dialogType =props.dialogType
-    // dialogType 1 2*2样式 2（1*2），3（1*3），4（单品）
-    if(!dialogType.value || dialogType.value === 'undefined' ){
-      dialogType.value = '1'
-    }
+    let dialogSource =props.dialogSource
+    // dialogSource 1 2*2样式 2（1*2），3（1*3），4（单品）
+  
   
     // 有埋点数据的话 需要进行曝光埋点
       // reportInfo(pointData.value)
@@ -54,7 +52,7 @@ export default {
       emit('confirm')
     }
     return { 
-      curData,
+      dialogSource,
       panelCancel,
       panelConfirm,
     }
