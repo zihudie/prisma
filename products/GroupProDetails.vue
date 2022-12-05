@@ -165,16 +165,16 @@
     <van-popup v-model:show="paySus" style="background: transparent">
       <PaySuccess
         :data="prizeConfig"
-        @close="videoFailCancel"
-        @confirm="reTry"
+        @order="orderAgain"
+        @see="seeMorePros"
       />
     </van-popup>
     <!-- 查看更多商品弹框 -->
     <van-popup v-model:show="showMorePros" style="background: transparent">
       <RecomentProduct
         :data="prizeConfig"
-        @close="videoFailCancel"
-        @confirm="reTry"
+        :dialog-type = "route.query.dialogSource"
+        @close="showMorePros = false"
       />
     </van-popup>
   </div>
@@ -249,15 +249,20 @@ export default {
       totalBackCounts: 0,
       AnimateJSON
     });
-
+    
+    let getDataFun = getProDetails
     const route = useRoute();
     // 获取请求客户端的header信息
     let headers = {};
     nativeBridge.exec("0001").then(res=>{
       headers =  res
-
       console.log("headers..",headers)
     })
+
+    if(route.query.bussType && route.query.bussType === '2'){
+      //  todo  获取商品组详情方法
+       getDataFun = getGroupProDetails
+    }
 
     // 获取每日可弹次数
     nativeBridge.exec("0017").then(res=>{
@@ -321,7 +326,7 @@ export default {
 
     const fetchDetails = () => {
       return new Promise((resolve)=>{
-          getProDetails({ id: route.query.id }).then(async (res) => {
+          getDataFun({ id: route.query.id }).then(async (res) => {
             // 获取专区;
             const result = await areaList();
             const _area = result.data || [];
@@ -494,6 +499,7 @@ export default {
         commodityPriceId: id,
         userId: headers["customer-id"],
         purchaseAmount: 1,
+        orderType:route.query.bussType === '2' ? "commodity_group" : "commodity"
       };
       generateOrder(sendMessage).then((res) => {
         // 如果是看视频下单， 则请求完成之后继续请求 获取中奖码的接口； 如果是购买 则拉起支付
@@ -614,9 +620,11 @@ export default {
       })
       state.isUnWinRetetion = false;
       state.iswinRetetion = false;
-
-      //todo  支付检测versionCode:
-      if(headers.versionCode >=40 ){
+      //支付检测versionCode: 
+      if(headers["app-id"] === '1102' && headers.versionCode < 40){
+        // 进入支付流程
+        handlePay();
+      }else{
         // 判断商品是看视频 还是付费
         if (!state.goodsDetail.isNeedPay) {
           // 看视频调取视频广告
@@ -624,9 +632,6 @@ export default {
           return;
         }
         lastPaymentCheck()
-      }else{
-        // 进入支付流程
-        handlePay();
       }
     };
     const reTry = () => {
@@ -676,10 +681,11 @@ export default {
       })
       state.isPayRetetion = false;
 
-      if(headers.versionCode >= 40){
-          state.panelShow = false;
-          // 支付方式检测
-          lastPaymentCheck();
+      // 1102 40版本以上 或者在其他应用中
+      if(!(headers["app-id"] === '1102' && headers.versionCode < 40)){
+        state.panelShow = false;
+        // 支付方式检测
+        lastPaymentCheck();
       }
     };
 
@@ -712,6 +718,17 @@ export default {
       handlePay();
     };
 
+    // 再来一单
+    const orderAgain = () => {
+      state.paySus = false
+      state.panelShow = true
+    }
+
+    // 查看更多商品
+    const seeMorePros = () => {
+      state.paySus = false
+      state.showMorePros = true
+    }
     // 获取详情页数据
     fetchDetails().then(()=>{
         // 详情页曝光埋点
@@ -753,8 +770,14 @@ export default {
       const { status } = _res;
       console.log("paymentCallback_status...", status, typeof status);
       if (status === 1) {
-        // 获取购买得到的中奖码
-        getPrizeResult();
+        if(!(headers["app-id"] === '1102' && headers.versionCode < 40)){
+          // 支付成功之后 调用更多的弹框 
+          state.paySus = true
+        }else{
+          //老版本
+          // 获取购买得到的中奖码
+          getPrizeResult();
+        }
       }else{
         state.panelShow = true
       }

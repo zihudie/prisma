@@ -228,7 +228,6 @@ export default {
     let headers = {};
     nativeBridge.exec("0001").then(res=>{
       headers =  res
-
       console.log("headers..",headers)
     })
 
@@ -540,9 +539,7 @@ export default {
         });
     };
     const lastPaymentCheck= () =>{
-      // todo 接口请求判断上次支付方式
-      // 如未付款过/上次付款为微信支付：直接吊起微信支付
-      // 如上次为支付宝付款/微信支付调用失败：调起支付宝支付
+      // 接口请求判断上次支付方式
       // ===> 请求成功之后根据字段值进行支付调用
       nativeBridge.exec("0018").then(res=>{
         console.log("从客户端获取的到支付方式：",res)
@@ -585,9 +582,11 @@ export default {
       })
       state.isUnWinRetetion = false;
       state.iswinRetetion = false;
-
-      //todo  支付检测versionCode:
-      if(headers.versionCode >=40 ){
+      //支付检测versionCode: 
+      if(headers["app-id"] === '1102' && headers.versionCode < 40){
+        // 进入支付流程
+        handlePay();
+      }else{
         // 判断商品是看视频 还是付费
         if (!state.goodsDetail.isNeedPay) {
           // 看视频调取视频广告
@@ -595,9 +594,6 @@ export default {
           return;
         }
         lastPaymentCheck()
-      }else{
-        // 进入支付流程
-        handlePay();
       }
     };
     const reTry = () => {
@@ -646,11 +642,11 @@ export default {
         }
       })
       state.isPayRetetion = false;
-
-      if(headers.versionCode >= 40){
-          state.panelShow = false;
-          // 支付方式检测
-          lastPaymentCheck();
+      // 1102 40版本以上 或者在其他应用中
+      if(!(headers["app-id"] === '1102' && headers.versionCode < 40)){
+        state.panelShow = false;
+        // 支付方式检测
+        lastPaymentCheck();
       }
     };
 

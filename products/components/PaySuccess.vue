@@ -19,8 +19,8 @@
         </li>
       </ul>
       <div class="pay-bottom">
-        <img src="../assets/group/one.png" alt="再来一单">
-        <img src="../assets/group/more.png" alt="查看更多商品">
+        <img src="../assets/group/one.png" @click="orderMore" alt="再来一单">
+        <img src="../assets/group/more.png" @click="seeMorePros" alt="查看更多商品">
       </div>
     </div>
   </div>
@@ -44,16 +44,16 @@ export default {
    
       // reportInfo(pointData.value)
      
-    const panelCancel = () => {
-      emit('close')
+    const orderMore = () => {
+      emit('order')
     }
-    const panelConfirm = () => {
-      emit('confirm')
+    const seeMorePros = () => {
+      emit('see')
     }
     return { 
       data,
-      panelCancel,
-      panelConfirm,
+      orderMore,
+      seeMorePros,
     }
   },
 }
@@ -80,7 +80,7 @@ export default {
   color: #fff;
   text-align: center;
   
-  .cur-pro{
+  .cur-pro{ 
     position:relative;
     width: 113px;
     margin: 0 auto ;

@@ -21,6 +21,15 @@ export const getProDetails = (params) =>{
     params
   });
 }
+
+export const getGroupProDetails = (params) =>{
+  return request({
+    url: "/weatapi/luck-draw/goods/detail",
+    method: "get",
+    params
+  });
+}
+
 // 生成订单接口
 export const generateOrder = (data) =>{
   return request({

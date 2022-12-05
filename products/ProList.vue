@@ -70,15 +70,14 @@
        </van-index-bar>
       </div>
     </div>
+    <WinPrize
+      v-if="isFirstOpen"
+      :info="drawInfo"
+      @callback="prizeCallback"
+      @close="isFirstOpen = false"
+    />
   </div>
-  <WinPrize
-    v-if="isFirstOpen"
-    :info="drawInfo"
-    @callback="prizeCallback"
-    @close="isFirstOpen = false"
-  />
 </template>
-
 <script>
 import HeaderItem from "@/components/HeaderItem";
 import ProItem from "./components/ProItem";

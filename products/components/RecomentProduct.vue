@@ -1,27 +1,10 @@
 <template>
   <div class="more-recomment-model more-recomment-model3">
     <img class="close" src='@/assets/images/dClose.png'  @click="panelCancel"  alt="" />
-    <div style="display:none">
+    <div v-if="dialogType ==='2' || dialogType ==='3'">
       <!-- 2-3个产品样式 -->
-      <div class="inner-model pro-model2 pro-model31">
+      <div :class='["inner-model", `pro-model${dialogType}`]'>
         <ul>
-          <li class="pro-list">
-            <img class="pro-img" src="http://test-static.wisdomwz.com/weather/cms/2022-10-17/1666013435107dnG3nh.jpg" alt="">
-            <div class="pro-info">
-              <div>
-                <div class="info-top">
-                <span class="tejia">特价</span><span class="miao">秒杀</span><span class="title">农家土鸡蛋 40枚</span>
-                </div>
-                <p>直发 新鲜到家 安全品质</p>
-              </div>
-              <div class="price-model">
-                <span class="price"><span class="symbole">¥</span>89</span>
-                <span class="discount">
-                  19.9元秒杀
-                </span>
-              </div>
-            </div>
-          </li>
           <li class="pro-list">
             <img class="pro-img" src="http://test-static.wisdomwz.com/weather/cms/2022-10-17/1666013435107dnG3nh.jpg" alt="">
             <div class="pro-info">
@@ -45,14 +28,13 @@
         </p>
       </div> 
       <div class="exchange">
-        <img src="../assets/group/exchange.png"/>
+        <img @click="exchange" src="../assets/group/exchange.png"/>
       </div>
     </div>
-
     <!-- 单个样式 -->
-    <!-- <SignleItem/> -->
+    <SignleItem v-if="dialogType ==='4'" /> 
     <!-- 4个产品样式 -->
-    <FourItem />
+    <FourItem v-if="dialogType ==='1'" />
   </div>
 </template>
 
@@ -61,7 +43,7 @@ import { ref } from 'vue'
 import { reportInfo} from "@/utils/jsBridge";
 import SignleItem from "./SignleItem";
 import FourItem from "./FourItem";
-
+import { useExchange } from "./useExchange"
 export default {
   components:{
     SignleItem,
@@ -71,10 +53,22 @@ export default {
     data: {
       type: Object,
       default: () => {},
+    },
+    dialogType:{
+      type: String,
+      default: "1",
     }
   },
   setup(props,{ emit }) {
-    const data = ref(props.data)
+    const data = props.data
+    let dialogType =props.dialogType
+    // dialogType 1 2*2样式 2（1*2），3（1*3），4（单品）
+    if(!dialogType.value || dialogType.value === 'undefined' ){
+      dialogType.value = '1'
+    }
+    
+    const {exchange,curData} = useExchange(data,Number(dialogType))
+
     // 有埋点数据的话 需要进行曝光埋点
       // reportInfo(pointData.value)
      
@@ -85,7 +79,7 @@ export default {
       emit('confirm')
     }
     return { 
-      data,
+      curData,
       panelCancel,
       panelConfirm,
     }
