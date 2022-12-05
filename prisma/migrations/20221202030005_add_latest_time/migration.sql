@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "ChineseStudy" ADD COLUMN "lastesTime" DATETIME DEFAULT CURRENT_TIMESTAMP;

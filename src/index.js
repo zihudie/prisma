@@ -75,26 +75,53 @@ router.post('/sign', async (ctx) => {
     }
   }
 })
+router.get('/users', async (ctx) => {
+  const users = await prisma.user.findMany()
+  ctx.body = users
+})
 
 router.post('/study', async (ctx) => {
-  const { type, errorCounts} =  ctx.request.body
+  const { type, errorCounts,word,id,userId} =  ctx.request.body
   const model  =  `${type}Study`
   // Chinese English
-  if(type !== 'Chinese' ||  type !== 'English'){
+  if(type !== 'Chinese' && type !== 'English'){
     ctx.body = {
       code: "0000",
       msg: "类型错误"
     }
     return 
   }
+
+  if(!userId) {
+    ctx.body = {
+      code: "0000",
+      msg: "请登录"
+    }
+    return 
+  }
+  if(id){
+    const data = await prisma[model].update({
+      where: {
+        id
+      },
+      data: {
+        errorCounts: {
+          increment: errorCounts,
+        },
+        lastesTime: new Date()
+      },
+    })
+    ctx.body  = data
+    return
+  }
   
   // 判断是否已经入库，如果已有则只进行更新数据库表操作，否则创建新记录
-  
   const user = await prisma[model].create({
     data:{
       begineTime: new Date(),
-      // errorCounts Int
-      errorCounts
+      errorCounts,
+      word,
+      userId
     }
   })
   
@@ -102,9 +129,8 @@ router.post('/study', async (ctx) => {
     data: {},
     code: "0000",
   }
+
 })
-
-
 const fetchBaidu = async (word) => {
  return  new Promise((resolve) => {
       url = "https://hanyu.baidu.com/s?wd=" + word + '&ptype=zici';
@@ -145,17 +171,17 @@ router.get('/ziyi', async (ctx) => {
 
   _data = formatData(_data)
   // 将文字对应的 拼音 笔画 插入到汉字数据表中
-  const newPost = await prisma.hanzi.create({
+  const newPost = await prisma.chinese.create({
     data: {
       ..._data,
       chinese: word
     }
   })
-  ctx.body = _data
+  ctx.body = newPost
 })
 
 router.get('/getWords',async(ctx)=>{
-  const data = await prisma.hanzi.findMany()
+  const data = await prisma.chinese.findMany()
   ctx.body = data
 })
 
@@ -163,6 +189,5 @@ app.use(router.routes()).use(router.allowedMethods())
 
 app.listen(3008, () =>
   console.log(`
-🚀 Server ready at: http://localhost:3008
-⭐️ See sample requests: https://github.com/prisma/prisma-examples/tree/latest/javascript/rest-koa#using-the-rest-api`),
+🚀 Server ready at: http://localhost:3008 🚀 `),
 )

@@ -48,7 +48,12 @@ GET http://127.0.0.1:3008/ziyi?word=%E5%AE%89
 
 ###
 
+
 GET http://127.0.0.1:3008/getWords
+
+###
+
+GET http://127.0.0.1:3008/users
 
 ###
 
@@ -70,6 +75,22 @@ content-type: application/json
 {
   "userName" : "messi",
   "password" : "20220427"
+}
+
+###
+
+
+POST  http://127.0.0.1:3008/study HTTP/1.1
+content-type: application/json
+
+
+{
+  "userId" : 1,
+  "word" : "安",
+  "begineTime": 1669885310295,
+  "type": "Chinese",
+  "errorCounts": 1,
+  "id": 1
 }
 
 ###

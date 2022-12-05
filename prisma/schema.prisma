@@ -37,5 +37,8 @@ model ChineseStudy {
   id          Int      @default(autoincrement()) @id
   begineTime  DateTime @default(now())
   errorCounts Int
+  word        String
   finished    Boolean  @default(false)
+  userId      Int
+  lastesTime  DateTime? @default(now())
 }
