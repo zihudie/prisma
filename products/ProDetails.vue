@@ -68,6 +68,7 @@
               v-for="pro in recommendList"
               :key="pro.id"
               :list="pro"
+              :isHistory = "true"
               :surplusMax= "areas.surplusMax"
               :surplusMin= "areas.surplusMin"
               @callBack = "itemCallback"

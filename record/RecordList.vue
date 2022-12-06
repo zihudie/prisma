@@ -9,7 +9,7 @@
         </template>
         <template #right>
           <!-- todo  需要判断是否有历史记录 且为 2.10 以下版本展示 -->
-          <span @click="historyRecord" class="customer">
+          <span @click="historyRecord" class="customer" v-if="hasRecord">
             <img src="./assets/hisRecord.png" class="his-record" alt="client" />
           </span>
           <span @click="goWechat" class="customer">
@@ -37,12 +37,12 @@
 import { reactive, toRefs } from 'vue'
 import HeaderItem from '@/components/HeaderItem'
 import RecordItem from './components/RecordItem'
-import {groupRecordList} from './api'
+import {groupRecordList ,recordList} from './api'
 import {reportInfo,nativeBridge,nativeRoute} from "@/utils/jsBridge";
 export default {
   components: {
     HeaderItem,
-    RecordItem,
+    RecordItem
   },
   setup() {
 		reportInfo({
@@ -51,14 +51,27 @@ export default {
 			eventType:"show"
 		})
     const state = reactive({
-      recordLists: []
+      recordLists: [],
+      hasRecord: false
     })
+
+    let headers = {};
+
     groupRecordList().then(res=>{
-      console.log(res.data);
       if(res.data) {
         state.recordLists = res.data
       }
     })
+    recordList().then( res => {
+      if(res.data) {
+        nativeBridge.exec("0001").then(_res =>{
+          headers =  _res
+          // 2.10
+          state.hasRecord = res.data.length && (headers["app-id"] === '1102' && headers.versionCode < 44)
+        })
+      }
+    })
+
     const historyRecord = () =>{
       nativeRoute({
         url: "/recordListOld",

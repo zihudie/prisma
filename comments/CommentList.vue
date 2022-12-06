@@ -35,7 +35,7 @@ import { reactive, toRefs } from "vue";
 import HeaderItem from '@/components/HeaderItem'
 import CommentItem from "@/components/CommentItem";
 import { useRoute } from "vue-router";
-import { getCommentList } from "./api";
+import { getCommentList,getGroupCommentList} from "./api";
 import { nativeRoute ,reportInfo} from "@/utils/jsBridge";
 
 // import { PullRefresh, Toast, List } from "vant";
@@ -57,8 +57,16 @@ export default {
     });
     const route = useRoute();
     state.queryId = route.query.goodsId;
+
+    let sendFun = getCommentList
+    let sendData = { goodsId: state.queryId }
+    // 商品组
+    if(route.query.bussType === '2'){
+      let sendFun = getGroupCommentList
+      let sendData = { goodsIidd: state.queryId }
+    }
     const init = () => {
-      getCommentList({ goodsId: state.queryId }).then((res) => {
+      sendFun(sendData).then((res) => {
         console.log("res", res);
         if (res.data) {
           state.commentData = res.data;
@@ -75,7 +83,7 @@ export default {
     };
     const onLoad = () => {};
 
-    const handleTry = (item) => { 
+    const handleTry = (item) => {
       reportInfo({
         eventCode:"choujiang_shaidan_click",
         eventName:"晒单中心页点击",

@@ -11,40 +11,32 @@
       </template>
     </header-item>
     <div class="prize-model">
-      <div :class="['prize-top',isGetPrize&&'get-prize-top']" v-show="!(showBubble && prizeLoading)">
-        <!-- <div v-if="!isGetPrize">
-          <img src="./assets/sad.png" alt="sad" />
-          <br />
-          很遗憾，您未中奖
-        </div> -->
+      <div :class="['prize-top']">
         <div class="get-prize">
           <img src="./assets/getBg.png" class="happy" alt="happy" />
-          <!-- <p><img src="./assets/quanyi.png" class="get-img" alt=""/></p>  -->
-          <!-- <p><img src="./assets/product.png" class="get-img" alt=""/></p>  -->
-          <p><img src="./assets/huafei.png" class="get-img" alt=""/></p> 
-          <p><span class="huafee" @click="jumpToHuafei">查看话费</span></p>
+          <p v-if="drawCommodity.commodityType === '0'"><img src="./assets/quanyi.png" class="get-img" alt=""/></p> 
+          <p v-if="drawCommodity.commodityType === '14'"><img src="./assets/product.png" class="get-img" alt=""/></p> 
+          <div v-if="drawCommodity.commodityType === '5'">
+            <p><img src="./assets/huafei.png" class="get-img" alt=""/></p> 
+            <p><span class="huafee" @click="jumpToHuafei">查看话费</span></p>
+          </div>
         </div>
       </div>
-    
       <div class="win-product box-model">
         <div class="r-center">
           <img
-            :src="codeInfo.coverImage"
+            :src="drawCommodity.coverImage"
             alt="产品"
           />
           <div class="r-pros">
-            <p class="name">{{codeInfo.commodityTitle}}</p>
+            <p class="name">{{drawCommodity.commodityName}}</p>
             <div>
-             <p class="price">商品价值：￥{{codeInfo.price}}</p>
+             <p class="price">商品价值：￥{{drawCommodity.price}}</p>
              <p class="time">商品参与时间：{{codeInfo.buyTime }}</p>
            </div>
           </div>
         </div>
         <div class="r-bottom">
-          <!-- <p @click="luckDraw" class="r-b-bottom">
-            <img src="./assets/double.png" class="double" alt="" >
-            <img src="./assets/goBtn.png" alt="继续" />
-          </p> -->
           <p @click="luckDraw" class="r-b-bottom">
             <img src="./assets/contact.png" alt="联系客服" />
           </p>
@@ -52,145 +44,39 @@
       </div>
     </div>
   </div>
-  <!-- 可以退款 -->
-  <van-popup v-model:show="isRefund" style="background: transparent">
-    <FailDialog :data="refundConfig" :goods-name="codeInfo.goodsName" :point-data="pointRefundShowConfig" :show-close="true" :single-btn="true" @close='cancelRefund' @confirm='handleRefund'/>
-  </van-popup>
-   <!-- 退款成功 -->
-  <van-popup v-model:show="susRefund" style="background: transparent">
-    <FailDialog :data="successConfig" :goods-name="codeInfo.goodsName" :point-data="susRefundConfig" :show-close="true" :single-btn="true" @close='susRefund = false' @confirm='susRefundHandle'/>
-  </van-popup>
-  <!-- 看视频失败 -->
-  <van-popup v-model:show="failLoad" style="background: transparent">
-    <FailDialog :data="tipConfig" :goods-name="codeInfo.goodsName" :point-data="failLoadConfig" :show-close="true"  @close='quitTry' @confirm='reTry'/>
-  </van-popup>
-  <!-- 看视频达到最大次数 -->
-  <van-popup v-model:show="isVideoCounteReached" style="background: transparent">
-    <FailDialog :data="reachConfig" :single-btn="true"  :show-close="true"  @close='isVideoCounteReached=false' @confirm='isVideoCounteReached=false'/>
-  </van-popup>
-  <!-- 退款商品展示 进度 -->
-  <van-popup v-model:show="showProgress" style="background: transparent">
-    <RefundProgress :data="codeInfo" :cur-code ='currentRefundCode'  @cancel='showProgress = false' @confirm='checkProgress'/>
-  </van-popup>
 </template>
 
 <script>
 import HeaderItem from '@/components/HeaderItem'
-import FailDialog from '@/components/FailDialog'
-import RefundProgress from '@/components/RefundProgress'
-import successImg from '@/assets/images/success.png'
-import susImg from '@/assets/images/happy.png'
-import tipsImg from '@/assets/images/tips.png'
 import {reactive,toRefs,ref,computed} from 'vue'
 import {useRoute} from "vue-router"
 import { Popup} from 'vant'
-import { getDrawInfo ,refundFetch,applyProgress} from "./api"
+import { getGroupDrawInfo ,refundFetch,applyProgress} from "./api"
 import { nativeRoute,nativeBridge, reportInfo } from '@/utils/jsBridge'
 import { parseTime } from "@/utils"
 export default {
   components: {
-    HeaderItem,
-    FailDialog,
-    RefundProgress,
-    [Popup.name]: Popup
+    HeaderItem
   },
   setup() {
-    const state = reactive({
-      isRefund: false,
-      failLoad: false,
-      showProgress: false,
-      susRefund: false,
-      countReached: false,
-      isVideoCounteReached: false,
-      prizeLoading: true,
+    const state = reactive({  
       codeInfo: {},
-      currentRefundCode: {},
-      isGetPrize: false,
+      drawCommodity: {}
     })
-
-    // todo 刷新免广告： 2013  刷新免广告权限 
-
-    const noRefundList = ref([])
-    const refundConfig = {
-      title: '恭喜您，达到全额退款资格',
-      msg: '是否立马退款？',
-      confirmText: '立马退款',
-      img: susImg
-    }
-    const tipConfig = {
-      title: '退款额度获取失败!',
-      msg: '观看完整视频就能获得哦~',
-      cancelText: '不要了',
-      confirmText: '立马重试',
-      img: tipsImg
-    }
-    const reachConfig = {
-      title: '今天看视频次数已用完',
-      msg: '请明天再来吧！',
-      confirmText: '好的',
-      img: tipsImg
-    }
-    const successConfig = {
-      title: '已退款，请注意查看账户余额',
-      confirmText: '好的',
-      img: successImg
-    }
-
-    const pointRefundShowConfig= {
-      eventCode:"choujiang_refund_popup_show",
-      eventName:"抽奖退款过程弹窗曝光",
-      eventType:"show",
-      extraParams:{
-        element_content:'退款弹窗',
-        good_name: state.codeInfo.goodsName
-      }
-    }
-    const susRefundConfig= {
-      eventCode:"choujiang_refund_popup_show",
-      eventName:"抽奖退款过程弹窗曝光",
-      eventType:"show",
-      extraParams:{
-        element_content:'退款成功弹窗',
-        good_name: state.codeInfo.goodsName
-      }
-    }
-    const failLoadConfig= {
-      eventCode:"choujiang_refund_popup_show",
-      eventName:"抽奖退款过程弹窗曝光",
-      eventType:"show",
-      extraParams:{
-        element_content:'看视频失败弹窗',
-        good_name: state.codeInfo.goodsName
-      }
-    }
-    
     const route = useRoute()
     const recordId = route.query.id
     const _date = new Date().getTime();
     const curDate = parseTime(_date, "{y}{m}{d}");
     const init = () => {
       return new Promise((resolve)=>{
-        getDrawInfo({id:recordId}).then(res=>{
+        getGroupDrawInfo({id:recordId}).then(res=>{
           if(res.data) {
             state.codeInfo = res.data
             state.codeInfo.buyTime = parseTime(state.codeInfo.buyTime,'{y}-{m}-{d} {h}:{i}')
-            // 获取可退款的列表
-            const _record = res.data.recordList && res.data.recordList.filter(item=>{
-              // 判断是否有中奖号码
-              if( item.luckCode === res.data.drawCode ){
-                this.isGetPrize = true
-              }
-              // 0 - 不可退款 1 - 可以退款 2 - 已退款  退款成功的话状态是2
-              // 获取不可退款的列表
-              if(item.state === 0) {
-                noRefundList.value.push(item)
-              }
-              // 可退款
-              if(item.state === 1) {
-                return item
-              }
-            })
-            Object.assign(state.currentRefundCode, _record[0] || {})
+            if(res.data.drawCommodity && res.data.drawCommodity.commodityType === '5'){
+               // 并且中奖 2013  刷新免广告权限  
+               nativeBridge.exec("2013")
+            }
           }
           resolve()
         })
@@ -198,7 +84,10 @@ export default {
     }
     //  接口请求获取结果信息
     init();
-  
+
+    const drawCommodity =  computed (()=>{
+      return state.codeInfo && state.codeInfo.drawCommodity  
+    })
     const luckDraw = () => {
       reportInfo({
         eventCode:"choujiang_inform_click",
@@ -209,151 +98,12 @@ export default {
           good_name: state.codeInfo.goodsName
         }
       })
-      nativeRoute({url: `/proDetails?id=${state.codeInfo.goodsId}`,path:'/luckdraw/ProductDetailActivity'})
+      nativeRoute({url: `/groupProDetails?bussType=2&payNow=true&id=${state.codeInfo.goodsId}`,path:'/luckdraw/GroupProductDetailActivity'})
     }
-    const applyRefund= ()=> {
-      reportInfo({
-        eventCode:"choujiang_inform_click",
-        eventName:"公示页点击",
-        eventType:"click",
-        extraParams:{
-          click_content:'申请退款',
-          good_name: state.codeInfo.goodsName
-        }
-      })
-      // 获取视频进度
-      state.showProgress = true
-    }
-    const checkProgress = () =>{
-      nativeBridge.exec("2011",{key:`prizeCode_${curDate}`}).then(res=>{ 
-        // 判断是否达到每日可看最大次数
-        if(res.value === '4'){
-          state.isVideoCounteReached = true
-          return
-        }
-        // 进度100%
-        if(state.currentRefundCode.applyRefundCount  >= state.currentRefundCode.applyRefundTotal){
-            state.isRefund = true
-        }else{
-          // 调取客户端看视频
-          nativeBridge.exec("2007",{page_position:"award_refund"})
-        }
-      })
-    }
-
-    const cancelRefund = () =>{
-      state.isRefund =  false;
-    }
-
-    // 达到100%  发起退款
-    const handleRefund = async () => {
-      reportInfo({
-        eventCode:"choujiang_refund_popup_click",
-        eventName:"抽奖退款过程弹窗点击",
-        eventType:"click",
-        extraParams:{
-          click_content:'退款—立马退款',
-          element_content:"退款弹窗",
-          good_name: state.codeInfo.goodsName
-        }
-      })
-      state.isRefund =  false;
-      let headers = {}
-      try {
-        headers  = await nativeBridge.exec('0001')
-      }catch{
-        headers = {}
-      }
-      
-      // 走退款流程
-      const sendData = {
-        "orderNo": state.currentRefundCode.orderNo,// 订单号
-        "userId": headers["customer-id"],// 用户Id
-        "commodityType":state.codeInfo.commodityType //商品类型
-      }
- 
-      refundFetch(sendData).then(res=>{
-         if(res.data ===1){
-          state.susRefund = true
-          init()
-         }
-      })
-    }
-   
 
     // 查看话费券  跳转到客户端我的优惠页面
     const jumpToHuafei = () => {
       nativeRoute({path:'/coupon/user'}) 
-    }
-    
-    const reTry = () => {
-      reportInfo({
-        eventCode:"choujiang_refund_popup_click",
-        eventName:"抽奖退款过程弹窗点击",
-        eventType:"click",
-        extraParams:{
-          click_content:'看视频失败—立马重试',
-          element_content:"看视频失败弹窗",
-          good_name: state.codeInfo.goodsName
-        }
-      })
-      state.failLoad = false
-      nativeBridge.exec("2007",{page_position:"award_refund"})
-    }
-    const quitTry = () =>{
-      reportInfo({
-        eventCode:"choujiang_refund_popup_click",
-        eventName:"抽奖退款过程弹窗点击",
-        eventType:"click",
-        extraParams:{
-          click_content:'看视频失败—不要了',
-          element_content:"看视频失败弹窗",
-          good_name: state.codeInfo.goodsName
-        }
-      })
-      state.failLoad = false
-    }
-    const susRefundHandle = () => {
-      reportInfo({
-        eventCode:"choujiang_refund_popup_click",
-        eventName:"抽奖退款过程弹窗点击",
-        eventType:"click",
-        extraParams:{
-          click_content:'退款成功—好的',
-          element_content:"退款成功弹窗",
-          good_name: state.codeInfo.goodsName
-        }
-      })
-      state.susRefund = false
-    }
-    //  看视频回调函数
-    window.videoCallback = async (params) => {
-        const _res = JSON.parse(params)
-        const {status,resultCode} = _res
-        // state.countReached = resultCode === 4 ? true : false 
-        // 存数据 以当前的年月日为key
-        nativeBridge.exec("2010",{key:`prizeCode_${curDate}`,value: resultCode});
-        state.showProgress = false
-        if(status === 1){
-          // 请求进度 ，若达到100% 直接弹出退款弹框
-          applyProgress({id:state.currentRefundCode.id}).then(res =>{
-            const {data} = res
-            if(data){
-              if(data.current === data.total){
-                // 看视频成功之后刷新接口 更新兑奖码的进度
-                init()
-                state.isRefund = true
-              }else{
-                // 未达到 分子增加，提醒用户继续申请
-                state.currentRefundCode.applyRefundCount =  data.current 
-                state.showProgress = true
-              }
-            }
-          })
-        }else if(status === 0 &&  resultCode!==4 ){
-          // 看视频失败弹框
-          state.failLoad = true
-        }
     }
     reportInfo({
       eventCode:"choujiang_inform_show",
@@ -367,25 +117,10 @@ export default {
 
     return {
       ...toRefs(state),
-      noRefundList,
-      pointRefundShowConfig,
-      susRefundConfig,
-      failLoadConfig,
-      // myCode,
-      refundConfig,
-      tipConfig,
-      successConfig,
-      reachConfig,
+      drawCommodity,
       jumpToHuafei,
       goWechat,
-      handleRefund,
-      susRefundHandle,
-      cancelRefund,
-      luckDraw,
-      reTry,
-      quitTry,
-      applyRefund,
-      checkProgress,
+      luckDraw
     }
   },
 }

@@ -66,6 +66,10 @@ export default {
       type: Boolean,
       default: false
     },
+    isHistory:{
+      type: Boolean,
+      default: false
+    },
     isNeedpay:{
       type: Boolean,
       default: false
@@ -82,11 +86,19 @@ export default {
     const isNeedpay =  ref(props.isNeedpay)
     const isRecommend =  ref(props.isRecommend)
     const {surplusMax,surplusMin } = props
+    
     const remain =  Math.floor(Math.random()*(Number(surplusMax) - Number(surplusMin))+ Number(surplusMin))
     proList.value.remain = remain
+
+    let goDetailUrl = {url:`/groupProDetails?bussType=2&id=${proList.value.id}`,path:'/luckdraw/GroupProductDetailActivity'}
+
     const productPurchase = ()=>{
       emit("callBack",proList.value.commodityName)
-      nativeRoute({url:`/proDetails?bussType=2&id=${proList.value.id}`,path:'/luckdraw/ProductDetailActivity'})
+      // 区分详情和商品组详情
+      if(props.isHistory){
+        goDetailUrl = {url:`/proDetails?bussType=1&id=${proList.value.id}`,path:'/luckdraw/ProductDetailActivity'}
+      } 
+      nativeRoute( goDetailUrl )
     }
     AnimateJSON.value  = animateJSON
     return {

@@ -18,7 +18,13 @@ export const getDrawInfo = (params) =>
     method: "get",
     params
 });
-
+// 商品组中奖公示
+export const getGroupDrawInfo = (params) =>
+  request({
+    url: "/weatapi/luck-draw/v1/make-public",
+    method: "get",
+    params
+});
 // 退款
 export const refundFetch = (data) =>
   request({

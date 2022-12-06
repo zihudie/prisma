@@ -185,7 +185,7 @@ export default {
       })
       nativeRoute({
         url: "/recordList",
-        path: "/luckdraw/RecordActivity",
+        path: "/luckdraw/GroupRecordActivity",
       });
     };
     const prizeCallback = () => {
@@ -398,14 +398,6 @@ export default {
   }
   .active{
     color: #F93B3B;
-    // background: url(./assets/center.png) center center no-repeat;
-    // background-size: 100% 100%;  
-    // &:first-child{
-    //   background-image: url(./assets/left.png) ;
-    // }  
-    // &:last-child{
-    //   background-image: url(./assets/right.png);
-    // }  
   }
   &.proarea0::before {
     background: url(./assets/left.png) center bottom no-repeat;

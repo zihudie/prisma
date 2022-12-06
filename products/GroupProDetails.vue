@@ -21,36 +21,24 @@
      <div class="prodetails">
         <!-- 商品介绍 -->
         <div class="pro-intro">
-          <!-- <div class="prize">
-            <img src="./assets/prize.png" alt="flag" />
-            <span>综合中奖率高达：{{ goodsDetail.winRatio }}%</span>
-          </div> -->
           <span class="remain">仅剩<span>{{ goodsDetail.remain }}</span>件</span>
           <p class="name">{{ goodsDetail.commodityTitle }}</p>
         </div>
         <!-- 立即抢购 -->
         <div class="pro-buy">
-          <img class="rule-img" :src="goodsDetail.roleImage" alt="ruleImage" />
-          <div class="win" v-if='luckCodeList.length'>
-            <p class="f-b">我的中奖码</p>
-            <span class="code" v-for="(code,_idx) in luckCodeList" :key="_idx">{{code}}</span>
-          </div>
           <div v-if="goodsDetail.commodityStatus === 0" class="off">
             <img src="./assets/off.png" alt="" />
           </div>
           <div  class="can-buy" v-else>
-            <div class="buy-now zoom-in-zoom-out" @click="purchasePro" v-if="luckCodeList.length">再拿一个中奖码 <img src="./assets/doubleIcon.png" alt="" /></div>
-            <div v-else>
-              <div v-if="goodsDetail.isNeedPay" class="buy-init"  @click="purchasePro">
-                <div class="buy-now zoom-in-zoom-out">
-                  {{
-                    goodsDetail.commodityPriceList &&
-                    goodsDetail.commodityPriceList[0].price
-                  }}元抢购
-                </div>
+            <div v-if="goodsDetail.isNeedPay" class="buy-init"  @click="purchasePro">
+              <div class="buy-now zoom-in-zoom-out">
+                {{
+                  goodsDetail.commodityPriceList &&
+                  goodsDetail.commodityPriceList[0].price
+                }}元抢购
+              </div>
             </div>
             <div v-else class="buy-now zoom-in-zoom-out" @click="purchasePro">马上参加</div>
-            </div>
             <Vue3Lottie ref="lottieContainer" clas="lottie-con" :animationData="AnimateJSON" :height="64" :width="64" />
           </div>
         </div>

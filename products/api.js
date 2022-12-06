@@ -58,7 +58,7 @@ export const bulletChat = () =>{
 
 export const luckDrawInfo = () =>{
   return request({
-    url: "/weatapi/luck-draw/info",
+    url: "/weatapi/luck-draw/v1/info",
     method: "get",
   });
 }

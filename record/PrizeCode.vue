@@ -221,7 +221,6 @@ export default {
               }
             })
 
-            console.log("....退款码信息",state.noRefundList)
             Object.assign(state.currentRefundCode, _record[0] || {})
           }
 
