@@ -216,6 +216,7 @@ export default {
   },
    setup() {
     const danmakuRef = ref(null)
+    const paymentData = ref({})
     const state = reactive({
       dialogSource: "1",
       isPayRetetion: false,
@@ -815,6 +816,7 @@ export default {
       loginConfig,
       prizeConfig,
       danmakuRef,
+      paymentData,
       failShowConfig,
       prizeShowConfig,
       goWechat,
@@ -847,7 +849,7 @@ export default {
  .overlay-bg{
   background: url("@/assets/images/lightBg.png") rgba(0, 0, 0, .7) center center no-repeat;
   background-size: 100% 100%;
-  z-index: 9000;
+  z-index: 90000;
  }
 .box-cons {
   .box-model();
@@ -859,8 +861,7 @@ export default {
   overflow: auto;
 }
 .product-details--inner {
-  background: url("//img10.360buyimg.com/n1/jfs/t1/5275/38/19320/105770/62b12ab7E89897c93/e2defda5b033628a.jpg.avif")
-    0 0 no-repeat;
+  background: 0 0 no-repeat;
   background-size: 100% 375px;
   padding-top: 35px;
   position: relative;

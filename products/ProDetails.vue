@@ -815,8 +815,7 @@ export default {
   overflow: auto;
 }
 .product-details--inner {
-  background: url("//img10.360buyimg.com/n1/jfs/t1/5275/38/19320/105770/62b12ab7E89897c93/e2defda5b033628a.jpg.avif")
-    0 0 no-repeat;
+  background: 0 0 no-repeat;
   background-size: 100% 375px;
   padding-top: 35px;
   position: relative;
