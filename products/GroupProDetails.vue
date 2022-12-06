@@ -187,7 +187,7 @@ import 'vue3-lottie/dist/style.css'
 import { useRoute } from "vue-router";
 import { toRefs, reactive,ref } from "vue";
 import { Popup, Overlay } from "vant";
-import { areaList, getProDetails,getGroupProDetails, generateOrder, payResult, bulletChat} from "./api";
+import { areaList,getGroupProDetails, generateOrder, payResult, bulletChat} from "./api";
 import { checkToken } from "@/api/common";
 import { parseTime } from "@/utils";
 import { nativeBridge, nativeRoute ,reportInfo} from "@/utils/jsBridge";
@@ -316,7 +316,7 @@ export default {
 
     const fetchDetails = () => {
       return new Promise((resolve)=>{
-          getDataFun({ id: route.query.id }).then(async (res) => {
+          getGroupProDetails({ id: route.query.id }).then(async (res) => {
             // 获取专区;
             const result = await areaList();
             const _area = result.data || [];
@@ -489,7 +489,8 @@ export default {
         commodityPriceId: id,
         userId: headers["customer-id"],
         purchaseAmount: 1,
-        bussType: route.query.bussType === '2' ? "commodity_group" : "commodity"
+        bussType: "commodity_group"
+        // bussType: route.query.bussType === '2' ? "commodity_group" : "commodity"
       };
       generateOrder(sendMessage).then((res) => {
         // 如果是看视频下单， 则请求完成之后继续请求 获取中奖码的接口； 如果是购买 则拉起支付
@@ -565,7 +566,6 @@ export default {
         });
     };
     const lastPaymentCheck= () =>{
-      // todo 接口请求判断上次支付方式
       // 如未付款过/上次付款为微信支付：直接吊起微信支付
       // 如上次为支付宝付款/微信支付调用失败：调起支付宝支付
       // ===> 请求成功之后根据字段值进行支付调用

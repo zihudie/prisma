@@ -21,12 +21,21 @@ export const getProDetails = (params) =>{
     params
   });
 }
-
+// 商品组详情
 export const getGroupProDetails = (params) =>{
   return request({
     url: "/weatapi/luck-draw/v1/commodity-group/detail",
     method: "get",
     params
+  });
+}
+
+// 商品组推荐
+export const getRecommentLists = (data) =>{
+  return request({
+    url: "/weatapi/commodity-group/recommend/list",
+    method: "post",
+    data
   });
 }
 

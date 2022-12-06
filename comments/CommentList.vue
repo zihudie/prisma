@@ -63,11 +63,10 @@ export default {
     // 商品组
     if(route.query.bussType === '2'){
       let sendFun = getGroupCommentList
-      let sendData = { goodsIidd: state.queryId }
+      let sendData = { id: state.queryId }
     }
     const init = () => {
       sendFun(sendData).then((res) => {
-        console.log("res", res);
         if (res.data) {
           state.commentData = res.data;
         }
@@ -94,10 +93,17 @@ export default {
         }
       })
       // 跳转到详情页
-      nativeRoute({
-        url: `/proDetails?id=${item.goodsId}`,
-        path: "/luckdraw/ProductDetailActivity",
-      });
+      if(route.query.bussType === '2'){
+        nativeRoute({
+          url:`/groupProDetails?bussType=2&id=${item.goodsId}`,
+          path:'/luckdraw/GroupProductDetailActivity'
+        });
+      }else {
+        nativeRoute({
+          url: `/proDetails?id=${item.goodsId}`,
+          path: "/luckdraw/ProductDetailActivity",
+        });
+      } 
     };
     return {
       handleTry,

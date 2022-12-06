@@ -36,7 +36,7 @@
           <div v-if="goodsDetail.commodityStatus === 0" class="off">
             <img src="./assets/off.png" alt="" />
           </div>
-          <div  class="can-buy" v-else>
+          <div class="can-buy" v-else>
             <div class="buy-now zoom-in-zoom-out" @click="purchasePro" v-if="luckCodeList.length">再拿一个中奖码 <img src="./assets/doubleIcon.png" alt="" /></div>
             <div v-else>
               <div v-if="goodsDetail.isNeedPay" class="buy-init"  @click="purchasePro">
@@ -465,6 +465,7 @@ export default {
         commodityPriceId: id,
         userId: headers["customer-id"],
         purchaseAmount: 1,
+        bussType: "commodity"
       };
       generateOrder(sendMessage).then((res) => {
         // 如果是看视频下单， 则请求完成之后继续请求 获取中奖码的接口； 如果是购买 则拉起支付
