@@ -2,7 +2,8 @@
   <div class="record-list">
     <div class="r-top">
       <span class="issue">{{list.date}}{{list.group}}组</span>
-      <div class="see-code" @click="showPriceCode">查看参与结果</div>
+      <div class="prizes" v-if="list.notOpen">{{isCurrentDate ? "今天" : "明天"}}11点开奖</div>
+      <div class="see-code" v-else @click="showPriceCode">查看参与结果</div>
     </div>
     <div class="r-center" v-if="list.commodityGroup">
       <img
@@ -33,8 +34,13 @@ export default {
     }
   },  
   setup(props,{emit}) {
+    const _date =  (new Date).getTime()
+    const curDate = parseTime(_date, "{y}{m}{d}");
     const list =  ref(props.data || {})
+    const kaiJiangDate = parseTime(list.value.drawTime, "{y}{m}{d}");
+    const isCurrentDate = curDate === kaiJiangDate
     // 未到达开奖时间
+    list.value.notOpen = _date < list.value.drawTime || !list.value.drawCode
     list.value.buyTime = parseTime(list.value.buyTime,'{y}-{m}-{d} {h}:{i}')
 
     const showPriceCode = () => {

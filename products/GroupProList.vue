@@ -57,7 +57,6 @@
           <div class="product-items">
             <pro-item
               :list="list"
-              :isHistory="true"
               :surplusMax="item.surplusMax"
               :surplusMin="item.surplusMin"
               :isRecommend="list.commoditySort === 1"
@@ -85,9 +84,9 @@ import ProItem from "./components/ProItem";
 import WinPrize from "./components/WinPrize";
 import { useRouter } from "vue-router";
 import { IndexBar, IndexAnchor } from 'vant';
-import { reactive, toRefs, ref , onMounted} from "vue";
+import { reactive, toRefs, ref } from "vue";
 import { nativeRoute, h5Route,reportInfo,nativeBridge } from "@/utils/jsBridge";
-import { areaList, getTypeList, luckDrawInfo } from "./api";
+import { areaList, getTypeList, groupLuckDrawInfo } from "./api";
 export default {
   components: {
     HeaderItem,
@@ -164,7 +163,7 @@ export default {
     const deviceRatio =  window.devicePixelRatio
    
     // 横幅展示
-    luckDrawInfo().then((res) => {
+    groupLuckDrawInfo().then((res) => {
       state.drawInfo = res.data && res.data.date;
       state.isFirstOpen = res.data;
     });
@@ -185,8 +184,8 @@ export default {
         }
       })
       nativeRoute({
-        url: "/recordListOld",
-        path: "/luckdraw/RecordActivity",
+        url: "/recordList",
+        path: "/luckdraw/GroupRecordActivity",
       });
     };
     const prizeCallback = () => {
@@ -399,14 +398,6 @@ export default {
   }
   .active{
     color: #F93B3B;
-    // background: url(./assets/center.png) center center no-repeat;
-    // background-size: 100% 100%;  
-    // &:first-child{
-    //   background-image: url(./assets/left.png) ;
-    // }  
-    // &:last-child{
-    //   background-image: url(./assets/right.png);
-    // }  
   }
   &.proarea0::before {
     background: url(./assets/left.png) center bottom no-repeat;

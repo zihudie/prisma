@@ -17,28 +17,36 @@
         </template>
       </header-item>
       <!-- 推荐商品 -->
-     <recom-item :info='[]'/>
+     <prosrecom-item :info='relationCommodity'/>
      <div class="prodetails">
         <!-- 商品介绍 -->
         <div class="pro-intro">
+          <!-- <div class="prize">
+            <img src="./assets/prize.png" alt="flag" />
+            <span>综合中奖率高达：{{ goodsDetail.winRatio }}%</span>
+          </div> -->
           <span class="remain">仅剩<span>{{ goodsDetail.remain }}</span>件</span>
           <p class="name">{{ goodsDetail.commodityTitle }}</p>
         </div>
         <!-- 立即抢购 -->
         <div class="pro-buy">
+          <img class="rule-img" :src="goodsDetail.roleImage" alt="ruleImage" />
+
           <div v-if="goodsDetail.commodityStatus === 0" class="off">
             <img src="./assets/off.png" alt="" />
           </div>
           <div  class="can-buy" v-else>
-            <div v-if="goodsDetail.isNeedPay" class="buy-init"  @click="purchasePro">
-              <div class="buy-now zoom-in-zoom-out">
-                {{
-                  goodsDetail.commodityPriceList &&
-                  goodsDetail.commodityPriceList[0].price
-                }}元抢购
-              </div>
+            <div>
+              <div v-if="goodsDetail.isNeedPay" class="buy-init"  @click="purchasePro">
+                <div class="buy-now zoom-in-zoom-out">
+                  {{
+                    goodsDetail.commodityPriceList &&
+                    goodsDetail.commodityPriceList[0].price
+                  }}元抢购
+                </div>
             </div>
             <div v-else class="buy-now zoom-in-zoom-out" @click="purchasePro">马上参加</div>
+            </div>
             <Vue3Lottie ref="lottieContainer" clas="lottie-con" :animationData="AnimateJSON" :height="64" :width="64" />
           </div>
         </div>
@@ -90,7 +98,7 @@
       <PayItem
         @callback="closePanel"
         @pay="clickPayment"
-        :prodata="goodsDetail"
+        :prodata="paymentHandleData"
       />
     </van-popup>
     <!-- 支付挽留 -->
@@ -162,12 +170,13 @@
       <RecomentProduct
         :data="prizeConfig"
         :dialog-type = "dialogSource"
+        :surplusMax= "areas.surplusMax"
+        :surplusMin= "areas.surplusMin"
         @close="showMorePros = false"
       />
     </van-popup>
   </div>
 </template>
-
 <script>
 import HeaderItem from "@/components/HeaderItem";
 import CommentItem from "@/components/CommentItem";
@@ -178,7 +187,7 @@ import FailDialog from "@/components/FailDialog";
 import GetPrize from "@/components/GetPrize";
 import ProItem from "./components/ProItem";
 import PayItem from "./components/PayItem";
-import RecomItem from "./components/RecomItem";
+import ProsrecomItem from "./components/ProsrecomItem";
 import PaySuccess from "./components/PaySuccess";
 import RecomentProduct from "./components/RecomentProduct";
 
@@ -187,7 +196,7 @@ import 'vue3-lottie/dist/style.css'
 import { useRoute } from "vue-router";
 import { toRefs, reactive,ref } from "vue";
 import { Popup, Overlay } from "vant";
-import { areaList,getGroupProDetails, generateOrder, payResult, bulletChat} from "./api";
+import { areaList, getGroupProDetails, generateOrder, payResult, bulletChat} from "./api";
 import { checkToken } from "@/api/common";
 import { parseTime } from "@/utils";
 import { nativeBridge, nativeRoute ,reportInfo} from "@/utils/jsBridge";
@@ -216,7 +225,6 @@ export default {
   },
    setup() {
     const danmakuRef = ref(null)
-    const paymentData = ref({})
     const state = reactive({
       dialogSource: "1",
       isPayRetetion: false,
@@ -228,7 +236,9 @@ export default {
       videoFail: false,
       iswinRetetion: false,
       isUnWinRetetion: false,
+      paymentHandleData:{},
       goodsDetail: {},
+      relationCommodity:[],
       recommendList: [],
       comment: null,
       areas: {},
@@ -240,7 +250,7 @@ export default {
       AnimateJSON
     });
     
-    let getDataFun = getProDetails
+ 
     const route = useRoute();
     // 弹框类型
     state.dialogSource = route.query.dialogSource || "1"
@@ -251,10 +261,7 @@ export default {
       console.log("headers..",headers)
     })
 
-    if(route.query.bussType && route.query.bussType === '2'){
-       getDataFun = getGroupProDetails
-    }
-
+ 
     // 获取每日可弹次数
     nativeBridge.exec("0017").then(res=>{
       console.log("每日弹框次数", res)
@@ -325,7 +332,8 @@ export default {
             if (data) {
               state.comment = data.comment;
               state.luckCodeList = data.luckCodeList || []
-              state.goodsDetail = data.goodsDetail || {};
+              state.goodsDetail = data.detail || {};
+              state.relationCommodity =  dta.detail.relationCommodity || []
               state.recommendList = data.recommendList || [];
               state.areas = fitArea(data.goodsDetail.luckDrawZone, _area) || {};
               const { isNeedPay, winRatio, surplusMax, surplusMin ,roleImage} = state.areas;
@@ -490,8 +498,7 @@ export default {
         commodityPriceId: id,
         userId: headers["customer-id"],
         purchaseAmount: 1,
-        bussType: "commodity_group"
-        // bussType: route.query.bussType === '2' ? "commodity_group" : "commodity"
+        bussType:"commodity_group" 
       };
       generateOrder(sendMessage).then((res) => {
         // 如果是看视频下单， 则请求完成之后继续请求 获取中奖码的接口； 如果是购买 则拉起支付
@@ -540,6 +547,8 @@ export default {
           good_name: state.goodsDetail.commodityName
         }
       })
+      // 点击时将待支付数据 转为 当前商品
+      state.paymentHandleData = {...state.goodsDetail}
       handlePay();
     };
     // 点击支付宝 微信 购买
@@ -567,6 +576,7 @@ export default {
         });
     };
     const lastPaymentCheck= () =>{
+      // todo 接口请求判断上次支付方式
       // 如未付款过/上次付款为微信支付：直接吊起微信支付
       // 如上次为支付宝付款/微信支付调用失败：调起支付宝支付
       // ===> 请求成功之后根据字段值进行支付调用
@@ -733,6 +743,8 @@ export default {
         })
         // 提供给客户端使用 立即支付
         if(route.query.payType && route.query.payNow && route.query.payNow === 'true' ){
+          // 直接支付时将待支付数据 转为 当前商品
+          state.paymentHandleData = {...state.goodsDetail}
           clickPayment(route.query.payType )
         }
     });
@@ -816,7 +828,6 @@ export default {
       loginConfig,
       prizeConfig,
       danmakuRef,
-      paymentData,
       failShowConfig,
       prizeShowConfig,
       goWechat,
@@ -849,7 +860,7 @@ export default {
  .overlay-bg{
   background: url("@/assets/images/lightBg.png") rgba(0, 0, 0, .7) center center no-repeat;
   background-size: 100% 100%;
-  z-index: 90000;
+  z-index: 9000;
  }
 .box-cons {
   .box-model();
@@ -861,7 +872,8 @@ export default {
   overflow: auto;
 }
 .product-details--inner {
-  background: 0 0 no-repeat;
+  background: url("//img10.360buyimg.com/n1/jfs/t1/5275/38/19320/105770/62b12ab7E89897c93/e2defda5b033628a.jpg.avif")
+    0 0 no-repeat;
   background-size: 100% 375px;
   padding-top: 35px;
   position: relative;

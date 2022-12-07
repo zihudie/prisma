@@ -3,19 +3,19 @@
   <div>
     <div :class='["inner-model", `pro-model${dialogSource}`]'>
     <ul>
-      <li class="pro-list">
-        <img class="pro-img" src="http://test-static.wisdomwz.com/weather/cms/2022-10-17/1666013435107dnG3nh.jpg" alt="">
+      <li class="pro-list" v-for="list in curData" :key="list.uuid">
+        <img class="pro-img" :src="list.commodityCoverUrl" alt="">
         <div class="pro-info">
           <div>
             <div class="info-top">
-            <span class="tejia">特价</span><span class="miao">秒杀</span><span class="title">农家土鸡蛋 40枚</span>
+            <span class="tejia">特价</span><span class="miao">秒杀</span><span class="title">{{list.commodityName}}</span>
             </div>
-            <p>直发 新鲜到家 安全品质</p>
+            <p>{{list.commodityTitle}}</p>
           </div>
           <div class="price-model">
-            <span class="price"><span class="symbole">¥</span>89</span>
+            <span class="price"><span class="symbole">¥</span>{{list.commodityPriceList && list.commodityPriceList[0].commodityPrice}}</span>
             <span class="discount">
-              19.9元秒杀
+               {{ list.commodityPriceList && list.commodityPriceList[0].price }}元秒杀
             </span>
           </div>
         </div>

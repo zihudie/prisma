@@ -2,22 +2,9 @@
   <div class="four-model">
     <div class="pro-model">
       <ProItem 
-      :list="proList"
-      surplusMax= "100"
-      surplusMin= "10"
-      />
-      <ProItem 
-      :list="proList"
-      surplusMax= "100"
-      surplusMin= "10"
-      />
-      <ProItem 
-      :list="proList"
-      surplusMax= "100"
-      surplusMin= "10"
-      />
-      <ProItem 
-      :list="proList"
+      v-for="list in proList"
+      :key="list.uuid"
+      :list="list"
       surplusMax= "100"
       surplusMin= "10"
       />

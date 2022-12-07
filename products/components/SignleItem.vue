@@ -2,14 +2,14 @@
   <div class="singlemodel">
     <div class="single-pro">
       <div class="pro-cover">
-        <img src="http://test-static.wisdomwz.com/weather/cms/2022-10-17/1666013435107dnG3nh.jpg" alt="">
-        <span class="remain">仅剩10件</span>
+        <img :src="curData.commodityCoverUrl" alt="">
+        <span class="remain">仅剩{{curData.remain}}件</span>
       </div>
-      <p class="text-overflow tit">惠寻农家土鸡蛋40枚整惠寻农家土鸡蛋40枚整箱…</p>
+      <p class="text-overflow tit">{{curData.commodityTitle}}</p>
     </div>
     <div class="price-model">
-        <span class="yuan">原价:10999元</span>
-        <span class="buy-price">抢购价:<span class="amount">19.9</span>元</span>
+        <span class="yuan">原价:{{curData.commodityPriceList && curData.commodityPriceList[0].commodityPrice}}元</span>
+        <span class="buy-price">抢购价:<span class="amount"> {{ curData.commodityPriceList && curData.commodityPriceList[0].price }}</span>元</span>
     </div>
     <img src="../assets/group/rule2.png"  @click="jumpRule" class="rule" alt="">
     <p>

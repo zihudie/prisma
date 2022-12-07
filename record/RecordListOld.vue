@@ -2,7 +2,7 @@
   <div class="content flex-content">
     <header-item>
       <template v-slot:center>
-        <span>历史参与记录</span>
+        <span> {{history ? '历史参与记录' :'参与记录'}}</span>
       </template>
 	</header-item>
     <div class="records-content">
@@ -23,6 +23,7 @@
 
 <script>
 import { reactive, toRefs } from 'vue'
+import { useRoute } from "vue-router"
 import HeaderItem from '@/components/HeaderItem'
 import RecordItem from './components/RecordItemOld'
 import {recordList} from './api'
@@ -33,14 +34,18 @@ export default {
     RecordItem,
   },
   setup() {
+    const route = useRoute()
 		reportInfo({
 			eventCode:"choujiang_involve_show",
 			eventName:"参与记录页曝光",
 			eventType:"show"
 		})
     const state = reactive({
-      recordLists: []
+      recordLists: [],
+      history: ''
     })
+    state.history =  route.query.history || ''
+ 
     recordList().then(res=>{
       console.log(res.data);
       if(res.data) {

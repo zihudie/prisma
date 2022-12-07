@@ -74,7 +74,7 @@ export default {
 
     const historyRecord = () =>{
       nativeRoute({
-        url: "/recordListOld",
+        url: "/recordListOld?type=history",
         path: "/luckdraw/RecordActivity",
       });
     }

@@ -4,8 +4,9 @@
       您还有机会获得以下商品
      </div>
      <div class="rec-pros">
-      <span class="item"></span>
-      <span class="item"></span>
+        <img 
+          class="item" v-for='list in info' :key="list.uuid"
+          :src="list.commodityCoverUrl" alt="">
      </div>
   </div>
 
@@ -67,7 +68,6 @@ export default {
       width: 60px;
       height: 60px;
       border-radius: 8px;
-      background: red;
     }
   }
 }
